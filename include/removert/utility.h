@@ -18,7 +18,6 @@
 #include <visualization_msgs/MarkerArray.h>
 
 #include <Eigen/Dense>
-#include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
 #include <cv_bridge/cv_bridge.h>
@@ -66,6 +65,7 @@
 #include <array>
 #include <thread>
 #include <mutex>
+#include <regex> // AMRL Modification
 
 #include <filesystem> // requires gcc version >= 8
 

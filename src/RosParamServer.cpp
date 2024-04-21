@@ -1,6 +1,34 @@
 #include "removert/RosParamServer.h"
 
+struct CODaFilenameComparator {
+    bool operator()(const std::string& filename1, const std::string& filename2) const {
+        // Regular expression to extract numbers from the format "3d_comp_os1_{seq}_{frame}"
+        std::regex re("(?:.*/)?3d_comp_os1_(\\d+)_(\\d+)");
+        std::smatch match1, match2;
 
+        // Extracting numbers from the first filename
+        if (!std::regex_search(filename1, match1, re)) {
+            std::cerr << "Failed to parse " << filename1 << std::endl;
+            return false;
+        }
+
+        // Extracting numbers from the second filename
+        if (!std::regex_search(filename2, match2, re)) {
+            std::cerr << "Failed to parse " << filename2 << std::endl;
+            return false;
+        }
+
+        // Convert extracted strings to integers
+        int seq1 = std::stoi(match1[1]);
+        int frame1 = std::stoi(match1[2]);
+        int seq2 = std::stoi(match2[1]);
+        int frame2 = std::stoi(match2[2]);
+
+        // First compare seq, if they are the same then compare frame
+        if (seq1 != seq2) return seq1 < seq2;
+        return frame1 < frame2;
+    }
+};
 RosParamServer::RosParamServer()
 : nh(nh_super), ROSimg_transporter_(nh)
 {
@@ -38,8 +66,8 @@ RosParamServer::RosParamServer()
         sequence_scan_names_.emplace_back(_entry.path().filename());
         sequence_scan_paths_.emplace_back(_entry.path());
     }
-    std::sort(sequence_scan_names_.begin(), sequence_scan_names_.end());
-    std::sort(sequence_scan_paths_.begin(), sequence_scan_paths_.end());
+    std::sort(sequence_scan_names_.begin(), sequence_scan_names_.end(), CODaFilenameComparator());
+    std::sort(sequence_scan_paths_.begin(), sequence_scan_paths_.end(), CODaFilenameComparator());
 
     num_total_scans_of_sequence_ = sequence_scan_paths_.size();
     ROS_INFO_STREAM("\033[1;32m Total : " << num_total_scans_of_sequence_ << " scans in the directory.\033[0m");

@@ -10,30 +10,31 @@ removert:
   # @ save option 
   saveMapPCD: true 
   saveCleanScansPCD: true
-  save_pcd_directory: "/media/arthur/ExtremePro/removert/kitti/09/results/" # replace to your path (please use an absolute path)
+  save_pcd_directory: "/media/arthur/ExtremePro/removert/coda/0/results/" # replace to your path (please use an absolute path)
 
 
   # @ sequence info (replace to your paths) 
   #   please follow the KITTI odometry dataset's scan and pose formats (i.e., make them .bin and line-by-line corresponding se3 poses composed of 12 numbers)
-  sequence_scan_dir: "/media/arthur/ExtremePro/public_datasets/KITTI/dataset/sequence/09/velodyne/"
-  sequence_pose_path: "/media/arthur/ExtremePro/public_datasets/KITTI/dataset/poses/09.txt"
+  sequence_scan_dir: "/media/arthur/ExtremePro/CODa_v2/3d_comp/os1/0/"
+  sequence_pose_path: "/media/arthur/ExtremePro/removert/coda/poses/0.txt"
 
-  sequence_vfov: 50 # including upper and lower fovs, for example, KITTI's HDL64E is 2 + 24.9 ~ 27 deg. (so 25 + 25 = 50 is recommended because it is enough)
+  # sequence_vfov: 50 # including upper and lower fovs, for example, KITTI's HDL64E is 2 + 24.9 ~ 27 deg. (so 25 + 25 = 50 is recommended because it is enough)
+  # sequence_hfov: 360 # generally for targetting scanning LiDAR but a lidar having restricted hfov also just can use the 360 (because no point regions are considered in the algorithm)
+  sequence_vfov: 45 # including upper and lower fovs, for example, KITTI's HDL64E is 2 + 24.9 ~ 27 deg. (so 25 + 25 = 50 is recommended because it is enough)
   sequence_hfov: 360 # generally for targetting scanning LiDAR but a lidar having restricted hfov also just can use the 360 (because no point regions are considered in the algorithm)
 
-
   # @ Sequence's BaseToLidar info
-  ExtrinsicLiDARtoPoseBase: # this is for the KITTI (in the removert example, using SuMa poses written in the camera coord)
-      [-1.857e-03, -9.999e-01, -8.039e-03, -4.784e-03,
-       -6.481e-03,  8.0518e-03, -9.999e-01, -7.337e-02,
-        9.999e-01, -1.805e-03, -6.496e-03, -3.339e-01,
-        0.0,        0.0,        0.0,        1.0]
+  # ExtrinsicLiDARtoPoseBase: # this is for the KITTI (in the removert example, using SuMa poses written in the camera coord)
+  #     [-1.857e-03, -9.999e-01, -8.039e-03, -4.784e-03,
+  #      -6.481e-03,  8.0518e-03, -9.999e-01, -7.337e-02,
+  #       9.999e-01, -1.805e-03, -6.496e-03, -3.339e-01,
+  #       0.0,        0.0,        0.0,        1.0]
   # @ If you use the lidar-itself odometry (e.g., from A-LOAM or using odometry saver https://github.com/SMRT-AIST/interactive_slam/wiki/Example2), 
   #   use the below identity matrix, not the above KITTI pose setting (w.r.t the camera).
-  # ExtrinsicLiDARtoPoseBase: [1.0, 0.0, 0.0, 0.0, 
-  #                            0.0, 1.0, 0.0, 0.0, 
-  #                            0.0, 0.0, 1.0, 0.0, 
-  #                            0.0, 0.0, 0.0, 1.0]
+  ExtrinsicLiDARtoPoseBase: [1.0, 0.0, 0.0, 0.0, 
+                             0.0, 1.0, 0.0, 0.0, 
+                             0.0, 0.0, 1.0, 0.0, 
+                             0.0, 0.0, 0.0, 1.0]
 
 
   # @ Sampling nodes 
@@ -49,13 +50,13 @@ removert:
   #   means the removeter runs on all scans in a specified regions of a sequence 
   #   it means we parse scans every <keyframe_gap> or <keyframe_gap_meter> meter within the idx range [start_idx, end_idx] 
   #   but for a single batch, < 100 scans are recommended for the computation speed.
-  start_idx: 1300 # change this
-  end_idx: 1500 # change this
+  start_idx: 0 # change this
+  end_idx: 8213 # change this
 
 
   # @ auto repeat
   #   means the removeter runs on all scans in a sequence 
-  clean_for_all_scan: false # default is false
+  clean_for_all_scan: true # default is false
   batch_size: 150
   valid_ratio_to_save: 0.75 # i.e., no save cleaned scans located at the boundaries of a batch  
 
@@ -66,8 +67,9 @@ removert:
   #     - e.g., HDL 64E of KITTI dataset -> appx 25 deg / 64 ray ~ 0.4 deg per pixel -> the magnifier ratio = 1/0.4 = 2.5
   #     - e.g., Ouster OS1-64 of MulRan dataset -> appx 45 deg / 64 ray ~ 0.7 deg per pixel -> the magnifier ratio = 1/0.7 = 1.4
   # - recommend to use the first reverting resolution's magnifier ratio should lied in 1.0 to 1.5
-  remove_resolution_list: [2.5, 2.0, 1.5] # for HDL 64E of KITTI dataset 
+  # remove_resolution_list: [2.5, 2.0, 1.5] # for HDL 64E of KITTI dataset 
   # remove_resolution_list: [1.4, 1.1] # for Ouster OS1-64 of MulRan dataset
+  remove_resolution_list: [2.8444444444444446, 1.1] # for Ouster OS1-128 of CODa dataset
   revert_resolution_list: [1.0, 0.9, 0.8, 0.7] # TODO
 
 
@@ -87,7 +89,7 @@ removert:
 
 
   # @ For faster
-  num_omp_cores: 16 # for faster map points projection (to make a map range image)
+  num_omp_cores: 24 # for faster map points projection (to make a map range image)
 
   
   # @ For visualization of range images (rviz -d removert_visualization.rviz)
